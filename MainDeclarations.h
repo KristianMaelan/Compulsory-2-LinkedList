@@ -23,35 +23,21 @@ public:
 		tail = nullptr;
 		head = tail;
 	}
-	~LinkedList()
-	{
-	/*	if (Next == nullptr)
-		{
-			Previous->Next = nullptr;
-		}
-
-		if (Previous == nullptr)
-		{
-			Next->Previous = nullptr;
-		}
-
-		if ((Previous != nullptr) && (Next != nullptr))
-		{
-			Previous->Next = this->Next;
-			Next->Previous = this->Previous;
-		}*/
-		//Må kanskje ikke ha denne?
-		//delete this;
-	}
+	//Destructor not needed, using free and not delete
 
 	//Adding to list
 	//Adds element at beginning
 	void AddAtEnd(int data);
-	void AddInMiddle(int data);
+	void AddInMiddle(int index, int data);
 	void AddInBeginning(int data);
 
-	//Deleting
+	//Deleting nodes
+	//Delete specific element
 	void DeleteElement(int index);
+	//Deletes tail (Popback)
+	void DeleteBack();
+	//Deletes duplicate nodes
+	void RemoveDuplicates();
 
 	//Information
 	//Prints List Backwards and forwards.
@@ -62,7 +48,6 @@ public:
 	//Sort List
 	void SortList();
 
-	void RemoveDuplicates();
 };
 
 void LinkedList::AddAtEnd(int data)
@@ -85,7 +70,37 @@ void LinkedList::AddAtEnd(int data)
 		tail->Next = newNode;
 		tail = newNode;
 	}
-	
+}
+
+inline void LinkedList::AddInMiddle(int index, int data)
+{
+	if (index == 1)
+	{
+		AddInBeginning(data);
+	}
+	else if (index == ReturnElements())
+	{
+		AddAtEnd(data);
+	}
+	else if (index > 1 &&  index < ReturnElements())
+	{
+		
+	Node* newNode = new Node();
+	newNode->data = data;
+
+	Node* NodePtr = head;
+	int indexCheck = 0;
+	while (indexCheck < index)
+	{
+		NodePtr = NodePtr->Next;
+		indexCheck++;
+	}
+		newNode->Next = NodePtr;
+		newNode->Previous = NodePtr->Previous;
+		NodePtr->Previous->Next = newNode;
+		NodePtr->Previous = newNode;
+	}
+
 }
 
 void LinkedList::AddInBeginning(int data)
@@ -95,15 +110,6 @@ void LinkedList::AddInBeginning(int data)
 
 	newNode->Next = head;
 	head = newNode;
-	//if (tail == nullptr) //head
-	//{
-	//	tail = newNode;
-	//	head = tail;
-	//}
-	//else
-	//{
-	//	newNode->Next = head;
-	//}
 }
 
 void LinkedList::DeleteElement(int index)
@@ -129,7 +135,7 @@ void LinkedList::DeleteElement(int index)
 }
 
 
-void LinkedList::PrintDataBackward()
+void LinkedList::PrintDataForward()
 {
 	Node* NodePtr = head;
 
@@ -141,7 +147,7 @@ void LinkedList::PrintDataBackward()
 	std::cout << std::endl;
 }
 
-void LinkedList::PrintDataForward()
+void LinkedList::PrintDataBackward()
 {
 	Node* NodePtr = tail;
 
@@ -174,11 +180,7 @@ void LinkedList::SortList()
 	Node* temp = nullptr;
 
 
-	if (head == nullptr)
-	{
-		return;
-	}
-	else
+	if(head != nullptr)
 	{
 		//Loops until the current node is a nullptr. 
 		while (current != nullptr)
@@ -202,8 +204,32 @@ void LinkedList::SortList()
 
 void LinkedList::RemoveDuplicates()
 {
-	this->ReturnElements();
+	this->SortList();
 
+	Node* NodePtr = head;
 
+	while (NodePtr != tail)
+	{
+	Node* NodeToCheck = NodePtr->Next;
 
+		if (NodePtr->data == NodeToCheck->data)
+		{
+			NodePtr->Next = NodeToCheck->Next;
+			NodeToCheck->Next->Previous = NodePtr;
+
+			free(NodeToCheck);
+		}
+		NodePtr = NodePtr->Next;
+	}
+}
+
+void LinkedList::DeleteBack()
+{
+	Node* DeleteBack = tail;
+	Node* NewBack = DeleteBack->Previous;
+
+	NewBack->Next = nullptr;
+	tail = NewBack;
+
+	free(DeleteBack);
 }
